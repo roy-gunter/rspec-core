@@ -4,6 +4,9 @@ rspec-core provides the structure for writing executable examples of how your
 code should behave, and an `rspec` command with tools to constrain which
 examples get run and taylor the output.
 
+## test on my fork
+We would like to add a new example type to flag manual tests.
+
 ## install
 
     gem install rspec      # for rspec-core, rspec-expectations, rspec-mocks
