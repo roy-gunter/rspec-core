@@ -4,12 +4,13 @@ require "rspec/core/version"
 
 Gem::Specification.new do |s|
   s.name        = "rspec-core"
-  s.version     = RSpec::Core::Version::STRING
+  #s.version     = RSpec::Core::Version::STRING
+  s.version     = "2.10.0"
   s.platform    = Gem::Platform::RUBY
   s.license     = "MIT"
   s.authors     = ["Steven Baker", "David Chelimsky", "Chad Humphries"]
-  s.email       = "rspec-users@rubyforge.org"
-  s.homepage    = "http://github.com/rspec/rspec-core"
+  s.email       = "roygunter@gmail.com"
+  s.homepage    = "http://github.com/roy-gunter/rspec-core"
   s.summary     = "rspec-core-#{RSpec::Core::Version::STRING}"
   s.description = "BDD for Ruby. RSpec runner and example groups."
 

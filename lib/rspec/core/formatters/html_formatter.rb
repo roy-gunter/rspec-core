@@ -113,6 +113,15 @@ module RSpec
           @printer.flush
         end
 
+        # 09/14/2012 rgunter
+        def example_manual(example)
+          @printer.make_header_blue unless @header_red
+          @printer.make_example_group_header_blue(example_group_number) unless @example_group_red
+          @printer.move_progress(percent_done)
+          @printer.print_example_manual( example.description, example.metadata[:execution_result][:manual_message] )
+          @printer.flush
+        end
+
         # Override this method if you wish to output extra HTML for a failed spec. For example, you
         # could output links to images or other files produced during the specs.
         #
@@ -138,13 +147,17 @@ module RSpec
         def dump_pending
         end
 
-        def dump_summary(duration, example_count, failure_count, pending_count)
+        def dump_manual
+        end
+
+        def dump_summary(duration, example_count, failure_count, pending_count, manual_count)
           @printer.print_summary(
             dry_run?,
             duration,
             example_count,
             failure_count,
-            pending_count
+            pending_count,
+            manual_count
           )
           @printer.flush
         end
