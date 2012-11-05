@@ -50,7 +50,11 @@ module RSpec
           @output.puts "    <dd class=\"example not_implemented\"><span class=\"not_implemented_spec_name\">#{h(description)} (PENDING: #{h(pending_message)})</span></dd>"
         end
 
-        def print_summary( was_dry_run, duration, example_count, failure_count, pending_count )
+        def print_example_manual( description, manual_message )
+          @output.puts "    <dd class=\"example manual\"><span class=\"manual_spec_name\">#{h(description)} (MANUAL: #{h(manual_message)})</span></dd>"
+        end
+
+        def print_summary( was_dry_run, duration, example_count, failure_count, pending_count, manual_count)
           # TODO - kill dry_run?
           if was_dry_run
             totals = "This was a dry-run"
@@ -58,6 +62,7 @@ module RSpec
             totals =  "#{example_count} example#{'s' unless example_count == 1}, "
             totals << "#{failure_count} failure#{'s' unless failure_count == 1}"
             totals << ", #{pending_count} pending" if pending_count > 0
+            totals << ", #{manual_count} manual" if manual_count > 0
           end
 
           formatted_duration = sprintf("%.5f", duration)
@@ -87,6 +92,10 @@ module RSpec
           @output.puts "    <script type=\"text/javascript\">makeYellow('rspec-header');</script>"
         end
 
+        def make_header_blue
+          @output.puts "    <script type=\"text/javascript\">makeBlue('rspec-header');</script>"
+        end
+
         def make_example_group_header_red(group_id)
           @output.puts "    <script type=\"text/javascript\">makeRed('div_group_#{group_id}');</script>"
           @output.puts "    <script type=\"text/javascript\">makeRed('example_group_#{group_id}');</script>"
@@ -97,6 +106,10 @@ module RSpec
           @output.puts "    <script type=\"text/javascript\">makeYellow('example_group_#{group_id}');</script>"
         end
 
+        def make_example_group_header_blue(group_id)
+          @output.puts "    <script type=\"text/javascript\">makeBlue('div_group_#{group_id}');</script>"
+          @output.puts "    <script type=\"text/javascript\">makeBlue('example_group_#{group_id}');</script>"
+        end
 
         private
 
@@ -117,6 +130,7 @@ module RSpec
     <input id="passed_checkbox" name="passed_checkbox" type="checkbox" checked onchange="apply_filters()" value="1"> <label for="passed_checkbox">Passed</label>
     <input id="failed_checkbox" name="failed_checkbox" type="checkbox" checked onchange="apply_filters()" value="2"> <label for="failed_checkbox">Failed</label>
     <input id="pending_checkbox" name="pending_checkbox" type="checkbox" checked onchange="apply_filters()" value="3"> <label for="pending_checkbox">Pending</label>
+    <input id="manual_checkbox" name="manual_checkbox" type="checkbox" checked onchange="apply_filters()" value="3"> <label for="manual_checkbox">Manual</label>
   </div>
 
   <div id="summary">
@@ -148,6 +162,7 @@ function moveProgressBar(percentDone) {
 function makeRed(element_id) {
   removeClass(element_id, 'passed');
   removeClass(element_id, 'not_implemented');
+  removeClass(element_id, 'manual');
   addClass(element_id,'failed');
 }
 
@@ -156,7 +171,18 @@ function makeYellow(element_id) {
   if (elem.className.indexOf("failed") == -1) {  // class doesn't includes failed
     if (elem.className.indexOf("not_implemented") == -1) { // class doesn't include not_implemented
       removeClass(element_id, 'passed');
+      removeClass(element_id, 'manual');
       addClass(element_id,'not_implemented');
+    }
+  }
+}
+
+function makeBlue(element_id) {
+  var elem = document.getElementById(element_id);
+  if (elem.className.indexOf("failed") == -1) {  // class doesn't includes failed
+    if (elem.className.indexOf("not_implemented") == -1) { // class doesn't include not_implemented
+      removeClass(element_id, 'passed');
+      addClass(element_id,'manual');
     }
   }
 }
@@ -165,10 +191,12 @@ function apply_filters() {
   var passed_filter = document.getElementById('passed_checkbox').checked;
   var failed_filter = document.getElementById('failed_checkbox').checked;
   var pending_filter = document.getElementById('pending_checkbox').checked;
+  var manual_filter = document.getElementById('manual_checkbox').checked;
 
   assign_display_style("example passed", passed_filter);
   assign_display_style("example failed", failed_filter);
   assign_display_style("example not_implemented", pending_filter);
+  assign_display_style("example manual", manual_filter);
 
   assign_display_style_for_group("example_group passed", passed_filter);
   assign_display_style_for_group("example_group not_implemented", pending_filter, pending_filter || passed_filter);
@@ -285,6 +313,12 @@ dd.example.not_implemented {
   background: #FCFB98; color: #131313;
 }
 
+dd.example.manual {
+  border-left: 5px solid #FAF834;
+  border-bottom: 1px solid #FAF834;
+  background: #0F6DD2; color: #131313;
+}
+
 dd.example.pending_fixed {
   border-left: 5px solid #0000C2;
   border-bottom: 1px solid #0000C2;
@@ -297,6 +331,10 @@ dd.example.failed {
   color: #C20000; background: #FFFBD3;
 }
 
+
+dt.manual {
+  color: #000000; background: #0042D2;
+}
 
 dt.not_implemented {
   color: #000000; background: #FAF834;
@@ -313,6 +351,10 @@ dt.failed {
 
 #rspec-header.not_implemented {
   color: #000000; background: #FAF834;
+}
+
+#rspec-header.manual {
+  color: #000000; background: #0042D2;
 }
 
 #rspec-header.pending_fixed {
