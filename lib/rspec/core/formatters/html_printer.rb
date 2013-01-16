@@ -314,8 +314,8 @@ dd.example.not_implemented {
 }
 
 dd.example.manual {
-  border-left: 5px solid #3149D4;
-  border-bottom: 1px solid #3149D4;
+  border-left: 5px solid #3183D4;
+  border-bottom: 1px solid #3183D4;
   background: #31B9D4; color: #000000;
 }
 
@@ -354,7 +354,7 @@ dt.failed {
 }
 
 #rspec-header.manual {
-  color: #000000; background: #31D4CC;
+  color: #000000; background: #31B9D4;
 }
 
 #rspec-header.pending_fixed {
