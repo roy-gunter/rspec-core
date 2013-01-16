@@ -316,7 +316,7 @@ dd.example.not_implemented {
 dd.example.manual {
   border-left: 5px solid #FAF834;
   border-bottom: 1px solid #FAF834;
-  background: #0F6DD2; color: #131313;
+  background: #00EEFF; color: #131313;
 }
 
 dd.example.pending_fixed {
@@ -333,7 +333,7 @@ dd.example.failed {
 
 
 dt.manual {
-  color: #000000; background: #0042D2;
+  color: #000000; background: #00EEFF;
 }
 
 dt.not_implemented {
@@ -354,7 +354,7 @@ dt.failed {
 }
 
 #rspec-header.manual {
-  color: #000000; background: #0042D2;
+  color: #000000; background: #00EEFF;
 }
 
 #rspec-header.pending_fixed {
