@@ -115,7 +115,7 @@ module RSpec
 
         # 09/14/2012 rgunter
         def example_manual(example)
-          # @printer.make_header_blue unless @header_red || @header_yellow || @header_green
+          # @printer.make_header_blue unless @header_red
           @printer.make_example_group_header_blue(example_group_number) unless @example_group_red
           @printer.move_progress(percent_done)
           @printer.print_example_manual( example.description, example.metadata[:execution_result][:manual_message] )
