@@ -123,7 +123,7 @@ module RSpec
 
 <div id="rspec-header">
   <div id="label">
-    <h1>RSpec Code Examples</h1>
+    <h1>SageOne UI Regression</h1>
   </div>
 
   <div id="display-filters">
@@ -314,9 +314,9 @@ dd.example.not_implemented {
 }
 
 dd.example.manual {
-  border-left: 5px solid #FAF834;
-  border-bottom: 1px solid #FAF834;
-  background: #00EEFF; color: #131313;
+  border-left: 5px solid #3149D4;
+  border-bottom: 1px solid #3149D4;
+  background: #31B9D4; color: #000000;
 }
 
 dd.example.pending_fixed {
@@ -333,7 +333,7 @@ dd.example.failed {
 
 
 dt.manual {
-  color: #000000; background: #00EEFF;
+  color: #000000; background: #31B9D4;
 }
 
 dt.not_implemented {
@@ -354,7 +354,7 @@ dt.failed {
 }
 
 #rspec-header.manual {
-  color: #000000; background: #00EEFF;
+  color: #000000; background: #31D4CC;
 }
 
 #rspec-header.pending_fixed {
