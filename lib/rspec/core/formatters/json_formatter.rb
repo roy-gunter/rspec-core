@@ -18,26 +18,28 @@ module RSpec
           (@output_hash[:messages] ||= []) << message
         end
 
-        def dump_summary(duration, example_count, failure_count, pending_count, mannual_count)
-          super(duration, example_count, failure_count, pending_count, manual_count)
+        def dump_summary(duration, example_count, failure_count, pending_count, mannual_count, blocked_count)
+          super(duration, example_count, failure_count, pending_count, manual_count, blocked_count)
           @output_hash[:summary] = {
             :duration => duration,
             :example_count => example_count,
             :failure_count => failure_count,
             :pending_count => pending_count,
-            :manual_count => manual_count
+            :manual_count => manual_count,
+            :blocked_count => blocked_count
           }
-          @output_hash[:summary_line] = summary_line(example_count, failure_count, pending_count, mannual_count)
+          @output_hash[:summary_line] = summary_line(example_count, failure_count, pending_count, manual_count, blocked_count)
 
           # Don't print out profiled info if there are failures, it just clutters the output
           dump_profile if profile_examples? && failure_count == 0
         end
 
-        def summary_line(example_count, failure_count, pending_count, manual_count)
+        def summary_line(example_count, failure_count, pending_count, manual_count, blocked_count)
           summary = pluralize(example_count, "example")
           summary << ", " << pluralize(failure_count, "failure")
           summary << ", #{pending_count} pending" if pending_count > 0
           summary << ", #{manual_count} manual" if manual_count > 0
+          summary << ", #{blocked_count} blocked" if blocked_count > 0
           summary
         end
 

@@ -38,6 +38,11 @@ module RSpec
           output.puts manual_output(example, example.execution_result[:manual_message])
         end
 
+        def example_blocked(example)
+          super(example)
+          output.puts blocked_output(example, example.execution_result[:blocked_message])
+        end
+
         def example_failed(example)
           super(example)
           output.puts failure_output(example, example.execution_result[:exception])
@@ -63,6 +68,10 @@ module RSpec
         # 09/14/2012 rgunter
         def manual_output(example, message)
           blue("#{current_indentation}#{example.description.strip} (MANUAL: #{message})")
+        end
+
+        def blocked_output(example, message)
+          blue("#{current_indentation}#{example.description.strip} (BLOCKED: #{message})")
         end
 
         def current_indentation

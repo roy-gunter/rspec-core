@@ -2,7 +2,7 @@ module RSpec::Core
   class Reporter
     def initialize(*formatters)
       @formatters = formatters
-      @example_count = @failure_count = @pending_count = @manual_count = 0
+      @example_count = @failure_count = @pending_count = @manual_count = @blocked_count = 0
       @duration = @start = nil
     end
 
@@ -79,14 +79,20 @@ module RSpec::Core
       notify :example_manual, example
     end
 
+    def example_blocked(example)
+      @blocked_count += 1
+      notify :example_blocked, example
+    end
+
     def finish(seed)
       begin
         stop
         notify :start_dump
         notify :dump_pending
         notify :dump_manual
+        notify :dump_blocked
         notify :dump_failures
-        notify :dump_summary, @duration, @example_count, @failure_count, @pending_count, @manual_count
+        notify :dump_summary, @duration, @example_count, @failure_count, @pending_count, @manual_count, @blocked_count
         notify :seed, seed if seed
       ensure
         notify :close

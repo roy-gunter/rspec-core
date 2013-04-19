@@ -54,7 +54,12 @@ module RSpec
           @output.puts "    <dd class=\"example manual\"><span class=\"manual_spec_name\">#{h(description)} (MANUAL: #{h(manual_message)})</span></dd>"
         end
 
-        def print_summary( was_dry_run, duration, example_count, failure_count, pending_count, manual_count)
+        def print_example_blocked( description, blocked_message )
+          @output.puts "    <dd class=\"example blocked\"><span class=\"blocked_spec_name\">#{h(description)} (BLOCKED: #{h(blocked_message)})</span></dd>"
+        end
+
+
+        def print_summary( was_dry_run, duration, example_count, failure_count, pending_count, manual_count, blocked_count)
           # TODO - kill dry_run?
           if was_dry_run
             totals = "This was a dry-run"
@@ -63,6 +68,7 @@ module RSpec
             totals << "#{failure_count} failure#{'s' unless failure_count == 1}"
             totals << ", #{pending_count} pending" if pending_count > 0
             totals << ", #{manual_count} manual" if manual_count > 0
+            totals << ", #{blocked_count} blocked" if blocked_count > 0
           end
 
           formatted_duration = sprintf("%.5f", duration)
@@ -131,6 +137,7 @@ module RSpec
     <input id="failed_checkbox" name="failed_checkbox" type="checkbox" checked onchange="apply_filters()" value="2"> <label for="failed_checkbox">Failed</label>
     <input id="pending_checkbox" name="pending_checkbox" type="checkbox" checked onchange="apply_filters()" value="3"> <label for="pending_checkbox">Pending</label>
     <input id="manual_checkbox" name="manual_checkbox" type="checkbox" checked onchange="apply_filters()" value="3"> <label for="manual_checkbox">Manual</label>
+    <input id="blocked_checkbox" name="blocked_checkbox" type="checkbox" checked onchange="apply_filters()" value="3"> <label for="blocked_checkbox">Blocked</label>
   </div>
 
   <div id="summary">
@@ -163,6 +170,7 @@ function makeRed(element_id) {
   removeClass(element_id, 'passed');
   removeClass(element_id, 'not_implemented');
   removeClass(element_id, 'manual');
+  removeClass(element_id, 'blocked');
   addClass(element_id,'failed');
 }
 
@@ -172,6 +180,7 @@ function makeYellow(element_id) {
     if (elem.className.indexOf("not_implemented") == -1) { // class doesn't include not_implemented
       removeClass(element_id, 'passed');
       removeClass(element_id, 'manual');
+      removeClass(element_id, 'blocked');
       addClass(element_id,'not_implemented');
     }
   }
@@ -183,6 +192,7 @@ function makeBlue(element_id) {
     if (elem.className.indexOf("not_implemented") == -1) { // class doesn't include not_implemented
       removeClass(element_id, 'passed');
       addClass(element_id,'manual');
+      addClass(element_id,'blocked');
     }
   }
 }
@@ -192,11 +202,13 @@ function apply_filters() {
   var failed_filter = document.getElementById('failed_checkbox').checked;
   var pending_filter = document.getElementById('pending_checkbox').checked;
   var manual_filter = document.getElementById('manual_checkbox').checked;
+  var blocked_filter = document.getElementById('blocked_checkbox').checked;
 
   assign_display_style("example passed", passed_filter);
   assign_display_style("example failed", failed_filter);
   assign_display_style("example not_implemented", pending_filter);
   assign_display_style("example manual", manual_filter);
+  assign_display_style("example blocked", blocked_filter);
 
   assign_display_style_for_group("example_group passed", passed_filter);
   assign_display_style_for_group("example_group not_implemented", pending_filter, pending_filter || passed_filter);
@@ -319,7 +331,19 @@ dd.example.manual {
   background: #31B9D4; color: #000000;
 }
 
+dd.example.blocked {
+  border-left: 5px solid #3183D4;
+  border-bottom: 1px solid #3183D4;
+  background: #31B9D4; color: #000000;
+}
+
 dd.example.pending_fixed {
+  border-left: 5px solid #0000C2;
+  border-bottom: 1px solid #0000C2;
+  color: #0000C2; background: #D3FBFF;
+}
+
+dd.example.blocked_fixed {
   border-left: 5px solid #0000C2;
   border-bottom: 1px solid #0000C2;
   color: #0000C2; background: #D3FBFF;
@@ -336,11 +360,19 @@ dt.manual {
   color: #000000; background: #31B9D4;
 }
 
+dt.blocked {
+  color: #000000; background: #31B9D4;
+}
+
 dt.not_implemented {
   color: #000000; background: #FAF834;
 }
 
 dt.pending_fixed {
+  color: #FFFFFF; background: #C40D0D;
+}
+
+dt.blocked_fixed {
   color: #FFFFFF; background: #C40D0D;
 }
 
@@ -357,7 +389,15 @@ dt.failed {
   color: #000000; background: #31B9D4;
 }
 
+#rspec-header.blocked {
+  color: #000000; background: #31B9D4;
+}
+
 #rspec-header.pending_fixed {
+  color: #FFFFFF; background: #C40D0D;
+}
+
+#rspec-header.blocked_fixed {
   color: #FFFFFF; background: #C40D0D;
 }
 

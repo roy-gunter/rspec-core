@@ -95,6 +95,7 @@ module RSpec
 
           @printer.print_example_failed( 
             exception.pending_fixed?,
+            exception.blocked_fixed?,
             example.description,
             example.execution_result[:run_time],
             @failed_examples.size,
@@ -119,6 +120,14 @@ module RSpec
           @printer.make_example_group_header_blue(example_group_number) unless @example_group_red
           @printer.move_progress(percent_done)
           @printer.print_example_manual( example.description, example.metadata[:execution_result][:manual_message] )
+          @printer.flush
+        end
+
+        def example_blocked(example)
+          # @printer.make_header_blue unless @header_red
+          @printer.make_example_group_header_blue(example_group_number) unless @example_group_red
+          @printer.move_progress(percent_done)
+          @printer.print_example_blocked( example.description, example.metadata[:execution_result][:blocked_message] )
           @printer.flush
         end
 
@@ -150,14 +159,18 @@ module RSpec
         def dump_manual
         end
 
-        def dump_summary(duration, example_count, failure_count, pending_count, manual_count)
+        def dump_blocked
+        end
+
+        def dump_summary(duration, example_count, failure_count, pending_count, manual_count, blocked_count)
           @printer.print_summary(
             dry_run?,
             duration,
             example_count,
             failure_count,
             pending_count,
-            manual_count
+            manual_count,
+            blocked_count
           )
           @printer.flush
         end

@@ -140,6 +140,14 @@ MESSAGE
       # without reporting it as a failure (default: false).
       add_setting :show_failures_in_pending_blocks
 
+      # When a block passed to manual fails (as expected), display the failure
+      # without reporting it as a failure (default: false).
+      add_setting :show_failures_in_manual_blocks
+
+      # When a block passed to blocked fails (as expected), display the failure
+      # without reporting it as a failure (default: false).
+      add_setting :show_failures_in_blocked_blocks
+
       # Convert symbols to hashes with the symbol as a key with a value of
       # `true` (default: false).
       #
