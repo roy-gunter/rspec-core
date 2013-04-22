@@ -15,8 +15,8 @@ module RSpec
         def pending_fixed?; true; end
       end
 
-      NO_REASON_GIVEN = 'No reason given'
-      NOT_YET_IMPLEMENTED = 'Not yet implemented'
+      NO_REASON_GIVEN = 'Test is pending automation'
+      NOT_YET_IMPLEMENTED = 'Test is pending automation'
 
       # @overload pending()
       # @overload pending(message)

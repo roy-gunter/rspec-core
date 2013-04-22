@@ -93,7 +93,7 @@ module RSpec
           end
           extra = extra_failure_content(exception)
 
-          @printer.print_example_failed( 
+          @printer.print_example_failed(
             exception.pending_fixed?,
             exception.blocked_fixed?,
             example.description,
@@ -124,8 +124,8 @@ module RSpec
         end
 
         def example_blocked(example)
-          # @printer.make_header_blue unless @header_red
-          @printer.make_example_group_header_blue(example_group_number) unless @example_group_red
+          @printer.make_header_magenta unless @header_red
+          @printer.make_example_group_header_magenta(example_group_number) unless @example_group_red
           @printer.move_progress(percent_done)
           @printer.print_example_blocked( example.description, example.metadata[:execution_result][:blocked_message] )
           @printer.flush

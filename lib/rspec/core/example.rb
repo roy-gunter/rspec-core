@@ -80,6 +80,7 @@ module RSpec
         @metadata  = @example_group_class.metadata.for_example(description, metadata)
         @exception = nil
         @pending_declared_in_example = false
+        @blocked_declared_in_example = false
       end
 
       # @deprecated access options via metadata instead
@@ -281,25 +282,30 @@ An error occurred #{context}
 
       def finish(reporter)
         if @exception
-          @exception.extend(NotPendingExampleFixed) unless @exception.respond_to?(:pending_fixed?)
-          record_finished 'failed', :exception => @exception
-          reporter.example_failed self
-          false
-        elsif @exception
-          @exception.extend(NotBlockedExampleFixed) unless @exception.respond_to?(:blocked_fixed?)
-          record_finished 'failed', :exception => @exception
-          reporter.example_failed self
-          false
+          if !@exception.respond_to?(:pending_fixed?)
+            @exception.extend(NotPendingExampleFixed)
+            record_finished 'failed', :exception => @exception
+            reporter.example_failed self
+            false
+          elsif !@exception.respond_to?(:blocked_fixed?)
+            @exception.extend(NotBlockedExampleFixed)
+            record_finished 'failed', :exception => @exception
+            reporter.example_failed self
+            false
+          end
         elsif @pending_declared_in_example
           record_finished 'pending', :pending_message => @pending_declared_in_example
           reporter.example_pending self
           true
-        # 04/19/2013 lav
+        elsif @blocked_declared_in_example
+          record_finished 'blocked', :blocked_message => "Blocked by defect " + @blocked_declared_in_example
+          reporter.example_blocked self
+          true
+        # 09/14/2012 rgunter
         elsif manual
           record_finished 'manual', :manual_message => String === manual ? manual : Manual::NO_REASON_GIVEN
           reporter.example_manual self
           true
-        # 04/19/2013 lav
         elsif blocked
           record_finished 'blocked', :blocked_message => String === blocked ? blocked : Blocked::NO_REASON_GIVEN
           reporter.example_blocked self
@@ -308,11 +314,6 @@ An error occurred #{context}
           record_finished 'pending', :pending_message => String === pending ? pending : Pending::NO_REASON_GIVEN
           reporter.example_pending self
           true
-        # 09/14/2012 rgunter
-        # elsif manual
-        #   record_finished 'manual', :manual_message => String === manual ? manual : Manual::NO_REASON_GIVEN
-        #   reporter.example_manual self
-        #   true
         else
           record_finished 'passed'
           reporter.example_passed self

@@ -60,9 +60,9 @@ module RSpec
           module_eval(<<-END_RUBY, __FILE__, __LINE__)
             def #{name}(desc=nil, *args, &block)
               options = build_metadata_hash_from(args)
-              options.update(:pending => RSpec::Core::Pending::NOT_YET_IMPLEMENTED) unless block
               options.update(:pending => RSpec::Core::Manual::MANUAL_TEST) unless block
               options.update(:pending => RSpec::Core::Blocked::BLOCKED_TEST) unless block
+              options.update(:pending => RSpec::Core::Pending::NOT_YET_IMPLEMENTED) unless block
               options.update(#{extra_options.inspect})
               examples << RSpec::Core::Example.new(self, desc, options, block)
               examples.last

@@ -18,12 +18,12 @@ module RSpec
         # 09/14/2012 rgunter
         def example_manual(example)
           super(example)
-          output.print blue('M')
+          output.print blue('m')
         end
 
         def example_blocked(example)
           super(example)
-          output.print blue('B')
+          output.print magenta('B')
         end
 
         def example_failed(example)

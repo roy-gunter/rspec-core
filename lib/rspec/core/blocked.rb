@@ -3,7 +3,7 @@ module RSpec
     module Blocked
       class BlockedDeclaredInExample < StandardError; end
 
-      # If Test::Unit is loaed, we'll use its error as baseclass, so that Test::Unit
+      # If Test::Unit is loaded, we'll use its error as baseclass, so that Test::Unit
       # will report unmet RSpec expectations as failures rather than errors.
       begin
         class BlockedExampleFixedError < Test::Unit::AssertionFailedError; end
@@ -15,8 +15,8 @@ module RSpec
         def blocked_fixed?; true; end
       end
 
-      NO_REASON_GIVEN = 'Blocked test'
-      BLOCKED_TEST = 'Blocked test'
+      NO_REASON_GIVEN = 'No reason given1'
+      BLOCKED_TEST = 'Blocked test1'
 
       def blocked(*args)
         return self.class.before(:each) { blocked(*args) } unless example

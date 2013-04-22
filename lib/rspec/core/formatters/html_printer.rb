@@ -102,9 +102,18 @@ module RSpec
           @output.puts "    <script type=\"text/javascript\">makeBlue('rspec-header');</script>"
         end
 
+        def make_header_magenta
+          @output.puts "    <script type=\"text/javascript\">makeMagenta('rspec-header');</script>"
+        end
+
         def make_example_group_header_red(group_id)
           @output.puts "    <script type=\"text/javascript\">makeRed('div_group_#{group_id}');</script>"
           @output.puts "    <script type=\"text/javascript\">makeRed('example_group_#{group_id}');</script>"
+        end
+
+        def make_example_group_header_magenta(group_id)
+          @output.puts "    <script type=\"text/javascript\">makeMagenta('div_group_#{group_id}');</script>"
+          @output.puts "    <script type=\"text/javascript\">makeMagenta('example_group_#{group_id}');</script>"
         end
 
         def make_example_group_header_yellow(group_id)
@@ -174,6 +183,16 @@ function makeRed(element_id) {
   addClass(element_id,'failed');
 }
 
+function makeMagenta(element_id) {
+  var elem = document.getElementById(element_id);
+  if (elem.className.indexOf("failed") == -1) {  // class doesn't includes failed
+      removeClass(element_id, 'passed');
+      removeClass(element_id, 'manual');
+      removeClass(element_id,'not_implemented');
+      addClass(element_id, 'blocked');
+  }
+}
+
 function makeYellow(element_id) {
   var elem = document.getElementById(element_id);
   if (elem.className.indexOf("failed") == -1) {  // class doesn't includes failed
@@ -191,8 +210,8 @@ function makeBlue(element_id) {
   if (elem.className.indexOf("failed") == -1) {  // class doesn't includes failed
     if (elem.className.indexOf("not_implemented") == -1) { // class doesn't include not_implemented
       removeClass(element_id, 'passed');
+      removeClass(element_id,'blocked');
       addClass(element_id,'manual');
-      addClass(element_id,'blocked');
     }
   }
 }
@@ -328,13 +347,13 @@ dd.example.not_implemented {
 dd.example.manual {
   border-left: 5px solid #3183D4;
   border-bottom: 1px solid #3183D4;
-  background: #31B9D4; color: #000000;
+  background: #B7D3DF; color: #000000;
 }
 
 dd.example.blocked {
-  border-left: 5px solid #3183D4;
-  border-bottom: 1px solid #3183D4;
-  background: #31B9D4; color: #000000;
+  border-left: 5px solid #581B44;
+  border-bottom: 1px solid #581B44;
+  background: #C06CA4; color: #FCFAFC;
 }
 
 dd.example.pending_fixed {
@@ -357,11 +376,11 @@ dd.example.failed {
 
 
 dt.manual {
-  color: #000000; background: #31B9D4;
+  color: #000000; background: #B7D3DF;
 }
 
 dt.blocked {
-  color: #000000; background: #31B9D4;
+  color: #000000; background: #C06CA4;
 }
 
 dt.not_implemented {
@@ -380,17 +399,16 @@ dt.failed {
   color: #FFFFFF; background: #C40D0D;
 }
 
-
 #rspec-header.not_implemented {
   color: #000000; background: #FAF834;
 }
 
 #rspec-header.manual {
-  color: #000000; background: #31B9D4;
+  color: #000000; background: #B7D3DF;
 }
 
 #rspec-header.blocked {
-  color: #000000; background: #31B9D4;
+  color: #000000; background: #C06CA4;
 }
 
 #rspec-header.pending_fixed {

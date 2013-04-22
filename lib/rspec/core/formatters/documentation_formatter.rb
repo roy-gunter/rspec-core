@@ -71,7 +71,7 @@ module RSpec
         end
 
         def blocked_output(example, message)
-          blue("#{current_indentation}#{example.description.strip} (BLOCKED: #{message})")
+          magenta("#{current_indentation}#{example.description.strip} (BLOCKED: #{message})")
         end
 
         def current_indentation
