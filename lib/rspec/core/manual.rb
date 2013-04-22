@@ -3,8 +3,8 @@ module RSpec
     module Manual
       class ManualDeclaredInExample < StandardError; end
 
-      NO_REASON_GIVEN = 'Manual test'
-      MANUAL_TEST = 'Manual test'
+      NO_REASON_GIVEN = 'Test needs to be executed by hand'
+      MANUAL_TEST = 'Test needs to be executed by hand'
 
       def manual(*args)
         return self.class.before(:each) { manual(*args) } unless example

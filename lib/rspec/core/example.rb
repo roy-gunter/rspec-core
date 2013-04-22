@@ -41,7 +41,7 @@ module RSpec
         keys.each { |key| define_method(key) { @metadata[key] } }
       end
 
-      delegate_to_metadata :full_description, :execution_result, :file_path, :pending, :location, :manual
+      delegate_to_metadata :full_description, :execution_result, :file_path, :pending, :location, :manual, :blocked
 
       # Returns the string submitted to `example` or its aliases (e.g.
       # `specify`, `it`, etc).  If no string is submitted (e.g. `it { should
@@ -80,6 +80,7 @@ module RSpec
         @metadata  = @example_group_class.metadata.for_example(description, metadata)
         @exception = nil
         @pending_declared_in_example = false
+        @blocked_declared_in_example = false
       end
 
       # @deprecated access options via metadata instead
@@ -95,6 +96,7 @@ module RSpec
 
       alias_method :pending?, :pending
       alias_method :manual?, :manual
+      alias_method :blocked?, :blocked
 
       # @api private
       # instance_evals the block passed to the constructor in the context of
@@ -107,11 +109,13 @@ module RSpec
         start(reporter)
 
         begin
-          unless pending || manual
+          unless pending || manual || blocked
             with_around_each_hooks do
               begin
                 run_before_each
                 @example_group_instance.instance_eval(&@example_block)
+              rescue Blocked::BlockedDeclaredInExample => e
+                @blocked_declared_in_example = e.message
               rescue Pending::PendingDeclaredInExample => e
                 @pending_declared_in_example = e.message
               rescue Manual::ManualDeclaredInExample => e
@@ -271,24 +275,44 @@ An error occurred #{context}
         def pending_fixed?; false; end
       end
 
+      # @private
+      module NotBlockedExampleFixed
+        def blocked_fixed?; false; end
+      end
+
       def finish(reporter)
         if @exception
-          @exception.extend(NotPendingExampleFixed) unless @exception.respond_to?(:pending_fixed?)
-          record_finished 'failed', :exception => @exception
-          reporter.example_failed self
-          false
+          if !@exception.respond_to?(:pending_fixed?)
+            @exception.extend(NotPendingExampleFixed)
+            record_finished 'failed', :exception => @exception
+            reporter.example_failed self
+            false
+          elsif !@exception.respond_to?(:blocked_fixed?)
+            @exception.extend(NotBlockedExampleFixed)
+            record_finished 'failed', :exception => @exception
+            reporter.example_failed self
+            false
+          end
         elsif @pending_declared_in_example
           record_finished 'pending', :pending_message => @pending_declared_in_example
           reporter.example_pending self
           true
-        elsif pending
-          record_finished 'pending', :pending_message => String === pending ? pending : Pending::NO_REASON_GIVEN
-          reporter.example_pending self
+        elsif @blocked_declared_in_example
+          record_finished 'blocked', :blocked_message => "Blocked by defect " + @blocked_declared_in_example
+          reporter.example_blocked self
           true
         # 09/14/2012 rgunter
         elsif manual
           record_finished 'manual', :manual_message => String === manual ? manual : Manual::NO_REASON_GIVEN
           reporter.example_manual self
+          true
+        elsif blocked
+          record_finished 'blocked', :blocked_message => String === blocked ? blocked : Blocked::NO_REASON_GIVEN
+          reporter.example_blocked self
+          true
+        elsif pending
+          record_finished 'pending', :pending_message => String === pending ? pending : Pending::NO_REASON_GIVEN
+          reporter.example_pending self
           true
         else
           record_finished 'passed'

@@ -40,6 +40,16 @@ function makeRed(element_id) {
   addClass(element_id,'failed');
 }
 
+function makeMagenta(element_id) {
+  var elem = document.getElementById(element_id);
+  if (elem.className.indexOf("failed") == -1) {  // class doesn't includes failed
+      removeClass(element_id, 'passed');
+      removeClass(element_id, 'manual');
+      removeClass(element_id,'not_implemented');
+      addClass(element_id, 'blocked');
+  }
+}
+
 function makeYellow(element_id) {
   var elem = document.getElementById(element_id);
   if (elem.className.indexOf("failed") == -1) {  // class doesn't includes failed

@@ -14,7 +14,8 @@ module RSpec
       #   * example_passed(example)
       #   * example_failed(example)
       #   * example_pending(example)
-      #   * example_manual(example)      
+      #   * example_manual(example)
+      #   * example_blocked(example)
       #   * message(string)
       # * stop
       # * start_dump
@@ -28,16 +29,17 @@ module RSpec
         include Helpers
         attr_accessor :example_group
         attr_reader :duration, :examples, :output
-        attr_reader :example_count, :pending_count, :failure_count, :manual_count
-        attr_reader :failed_examples, :pending_examples, :manual_examples
+        attr_reader :example_count, :pending_count, :failure_count, :manual_count, :blocked_count
+        attr_reader :failed_examples, :pending_examples, :manual_examples, :blocked_examples
 
         def initialize(output)
           @output = output || StringIO.new
-          @example_count = @pending_count = @failure_count = @manual_count = 0
+          @example_count = @pending_count = @failure_count = @manual_count = @blocked_count = 0
           @examples = []
           @failed_examples = []
           @pending_examples = []
           @manual_examples = []
+          @blocked_examples = []
           @example_group = nil
         end
 
@@ -82,6 +84,10 @@ module RSpec
           @manual_examples << example
         end
 
+        def example_blocked(example)
+          @blocked_examples << example
+        end
+
         def example_failed(example)
           @failed_examples << example
         end
@@ -103,12 +109,13 @@ module RSpec
         end
 
         # This method is invoked after the dumping of examples and failures.
-        def dump_summary(duration, example_count, failure_count, pending_count, manual_count)
+        def dump_summary(duration, example_count, failure_count, pending_count, manual_count, blocked_count)
           @duration = duration
           @example_count = example_count
           @failure_count = failure_count
           @pending_count = pending_count
           @manual_count = manual_count
+          @blocked_count = blocked_count
         end
 
         # This gets invoked after the summary if option is set to do so.
@@ -117,6 +124,10 @@ module RSpec
 
         # This gets invoked after the summary if option is set to do so.
         def dump_manual
+        end
+
+        # This gets invoked after the summary if option is set to do so.
+        def dump_blocked
         end
 
         def seed(number)
