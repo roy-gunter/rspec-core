@@ -22,6 +22,7 @@ module RSpec
       include Subject::ExampleMethods
       include Pending
       include Manual
+      include Blocked
       include Let
       include SharedExampleGroup
 
@@ -59,8 +60,9 @@ module RSpec
           module_eval(<<-END_RUBY, __FILE__, __LINE__)
             def #{name}(desc=nil, *args, &block)
               options = build_metadata_hash_from(args)
-              options.update(:pending => RSpec::Core::Pending::NOT_YET_IMPLEMENTED) unless block
               options.update(:pending => RSpec::Core::Manual::MANUAL_TEST) unless block
+              options.update(:pending => RSpec::Core::Blocked::BLOCKED_TEST) unless block
+              options.update(:pending => RSpec::Core::Pending::NOT_YET_IMPLEMENTED) unless block
               options.update(#{extra_options.inspect})
               examples << RSpec::Core::Example.new(self, desc, options, block)
               examples.last
@@ -103,6 +105,18 @@ module RSpec
         define_example_method :mit,      :manual => 'Manual test marked by xit'
         # Shortcut to define an example with :manual => 'Temporarily disabled with xspecify'
         define_example_method :mspecify, :manual => 'Manual test marked by xspecify'
+
+
+        # Shortcut to define an example with :blocked => true
+        define_example_method :blocked,  :blocked => true
+        # Shortcut to define an example with :blocked => 'Temporarily disabled with bexample'
+        define_example_method :bexample, :blocked => 'Blocked test marked by bexample'
+        # Shortcut to define an example with :blocked => 'Temporarily disabled with bit'
+        define_example_method :bit,      :blocked => 'Blocked test marked by bit'
+        # Shortcut to define an example with :blocked => 'Temporarily disabled with bspecify'
+        define_example_method :bspecify, :blocked => 'Blocked test marked by bspecify'
+
+
         # Works like `alias_method :name, :example` with the added benefit of
         # assigning default metadata to the generated example.
         #

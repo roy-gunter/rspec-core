@@ -16,6 +16,7 @@ module RSpec
           output.puts "Failures:"
           failed_examples.each_with_index do |example, index|
             output.puts
+            blocked_fixed?(example) ? dump_blocked_fixed(example, index) : dump_failure(example, index)
             pending_fixed?(example) ? dump_pending_fixed(example, index) : dump_failure(example, index)
             dump_backtrace(example)
           end
@@ -24,21 +25,23 @@ module RSpec
         def colorise_summary(summary)
           if failure_count > 0
             red(summary)
+          elsif blocked_count > 0
+            magenta(summary)
           elsif pending_count > 0
             yellow(summary)
           elsif manual_count > 0
-            blue(summary)
+            green(summary)
           else
             green(summary)
           end
         end
 
-        def dump_summary(duration, example_count, failure_count, pending_count, manual_count)
-          super(duration, example_count, failure_count, pending_count, manual_count)
+        def dump_summary(duration, example_count, failure_count, pending_count, manual_count, blocked_count)
+          super(duration, example_count, failure_count, pending_count, manual_count, blocked_count)
           # Don't print out profiled info if there are failures, it just clutters the output
           dump_profile if profile_examples? && failure_count == 0
           output.puts "\nFinished in #{format_duration(duration)}\n"
-          output.puts colorise_summary(summary_line(example_count, failure_count, pending_count, manual_count))
+          output.puts colorise_summary(summary_line(example_count, failure_count, pending_count, manual_count, blocked_count))
           dump_commands_to_rerun_failed_examples
         end
 
@@ -71,11 +74,12 @@ module RSpec
           end
         end
 
-        def summary_line(example_count, failure_count, pending_count, manual_count)
+        def summary_line(example_count, failure_count, pending_count, manual_count, blocked_count)
           summary = pluralize(example_count, "example")
           summary << ", " << pluralize(failure_count, "failure")
-          summary << ", #{pending_count} pending" if pending_count > 0
-          summary << ", #{manual_count} manual" if manual_count > 0
+          summary << ", #{blocked_count} blocked by defect" if blocked_count > 0
+          summary << ", #{manual_count} manual tests" if manual_count > 0
+          summary << ", #{pending_count} pending automation" if pending_count > 0
           summary
         end
 
@@ -102,12 +106,29 @@ module RSpec
             output.puts "Manual:"
             manual_examples.each do |manual_example|
               output.puts blue("  #{manual_example.full_description}")
-              output.puts blue("    # #{manual_example.execution_result[:manual_message]}")
-              output.puts blue("    # #{format_caller(manual_example.location)}")
+              output.puts cyan("    # #{manual_example.execution_result[:manual_message]}")
+              output.puts cyan("    # #{format_caller(manual_example.location)}")
               if manual_example.execution_result[:exception] \
                 && RSpec.configuration.show_failures_in_manual_blocks?
                 dump_failure_info(manual_example)
                 dump_backtrace(manual_example)
+              end
+            end
+          end
+        end
+
+        def dump_blocked
+          unless blocked_examples.empty?
+            output.puts
+            output.puts "Blocked by defect:"
+            blocked_examples.each do |blocked_example|
+              output.puts magenta("  #{blocked_example.full_description}")
+              output.puts cyan("    # #{blocked_example.execution_result[:blocked_message]}")
+              output.puts cyan("    # #{format_caller(blocked_example.location)}")
+              if blocked_example.execution_result[:exception] \
+                && RSpec.configuration.show_failures_in_blocked_blocks?
+                dump_failure_info(blocked_example)
+                dump_backtrace(blocked_example)
               end
             end
           end
@@ -183,7 +204,16 @@ module RSpec
 
         def dump_pending_fixed(example, index)
           output.puts "#{short_padding}#{index.next}) #{example.full_description} FIXED"
-          output.puts blue("#{long_padding}Expected pending '#{example.metadata[:execution_result][:pending_message]}' to fail. No Error was raised.")
+          output.puts cyan("#{long_padding}Expected pending '#{example.metadata[:execution_result][:pending_message]}' to fail. No Error was raised.")
+        end
+
+        def dump_blocked_fixed(example, index)
+          output.puts "#{short_padding}#{index.next}) #{example.full_description} FIXED"
+          output.puts cyan("#{long_padding}Expected blocked test'#{example.metadata[:execution_result][:blocked_message]}' to fail. No Error was raised. Check if issue has been corrected.")
+        end
+
+        def blocked_fixed?(example)
+          example.execution_result[:exception].blocked_fixed?
         end
 
         def pending_fixed?(example)
