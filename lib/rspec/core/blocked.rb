@@ -15,8 +15,8 @@ module RSpec
         def blocked_fixed?; true; end
       end
 
-      NO_REASON_GIVEN = 'No reason given1'
-      BLOCKED_TEST = 'Blocked test1'
+      NO_REASON_GIVEN = 'No reason given'
+      BLOCKED_TEST = 'Blocked test'
 
       def blocked(*args)
         return self.class.before(:each) { blocked(*args) } unless example

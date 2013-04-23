@@ -213,7 +213,7 @@ module RSpec
         end
 
         def blocked_fixed?(example)
-          example.execution_result[:exception].blocked_fixed?
+          example.execution_result[:exception].pending_fixed?
         end
 
         def pending_fixed?(example)
