@@ -10,14 +10,31 @@ module RSpec
           output.puts message
         end
 
+        # def dump_failures
+        #   return if failed_examples.empty?
+        #   output.puts
+        #   output.puts "Failures:"
+        #   failed_examples.each_with_index do |example, index|
+        #     output.puts
+        #     # blocked_fixed?(example) ? dump_blocked_fixed(example, index) : dump_failure(example, index)
+        #     pending_fixed?(example) ? dump_pending_fixed(example, index) : dump_failure(example, index)
+        #     dump_backtrace(example)
+        #   end
+        # end
+
         def dump_failures
           return if failed_examples.empty?
           output.puts
           output.puts "Failures:"
           failed_examples.each_with_index do |example, index|
             output.puts
-            blocked_fixed?(example) ? dump_blocked_fixed(example, index) : dump_failure(example, index)
-            pending_fixed?(example) ? dump_pending_fixed(example, index) : dump_failure(example, index)
+            if pending_fixed?(example)
+              dump_pending_fixed(example, index)
+            elsif blocked_fixed?(example)
+              dump_blocked_fixed(example, index)
+            else
+              dump_failure(example, index)
+            end
             dump_backtrace(example)
           end
         end
@@ -78,7 +95,7 @@ module RSpec
           summary = pluralize(example_count, "example")
           summary << ", " << pluralize(failure_count, "failure")
           summary << ", #{blocked_count} blocked by defect" if blocked_count > 0
-          summary << ", #{manual_count} manual tests" if manual_count > 0
+          summary << ", " << pluralize(manual_count,"manual test") if manual_count > 0
           summary << ", #{pending_count} pending automation" if pending_count > 0
           summary
         end
@@ -208,12 +225,13 @@ module RSpec
         end
 
         def dump_blocked_fixed(example, index)
-          output.puts "#{short_padding}#{index.next}) #{example.full_description} FIXED"
-          output.puts cyan("#{long_padding}Expected blocked test'#{example.metadata[:execution_result][:blocked_message]}' to fail. No Error was raised. Check if issue has been corrected.")
+          output.puts "#{short_padding}#{index.next}) #{example.full_description} -- DEFECT FIXED!"
+          output.puts cyan("#{long_padding}Expected test to fail due to defect '#{example.metadata[:execution_result][:blocked_message]}'.")
+          output.puts cyan("#{long_padding}No Error was raised. Check if issue has been corrected.")
         end
 
         def blocked_fixed?(example)
-          example.execution_result[:exception].pending_fixed?
+          example.execution_result[:exception].blocked_fixed?
         end
 
         def pending_fixed?(example)
