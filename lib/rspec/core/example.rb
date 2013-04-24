@@ -275,24 +275,17 @@ An error occurred #{context}
         def pending_fixed?; false; end
       end
 
-      # @private
       module NotBlockedExampleFixed
         def blocked_fixed?; false; end
       end
 
       def finish(reporter)
         if @exception
-          if !@exception.respond_to?(:pending_fixed?)
-            @exception.extend(NotPendingExampleFixed)
-            record_finished 'failed', :exception => @exception
-            reporter.example_failed self
-            false
-          elsif !@exception.respond_to?(:blocked_fixed?)
-            @exception.extend(NotBlockedExampleFixed)
-            record_finished 'failed', :exception => @exception
-            reporter.example_failed self
-            false
-          end
+          @exception.extend(NotPendingExampleFixed) unless @exception.respond_to?(:pending_fixed?)
+          @exception.extend(NotBlockedExampleFixed) unless @exception.respond_to?(:blocked_fixed?)
+          record_finished 'failed', :exception => @exception
+          reporter.example_failed self
+          false
         elsif @pending_declared_in_example
           record_finished 'pending', :pending_message => @pending_declared_in_example
           reporter.example_pending self

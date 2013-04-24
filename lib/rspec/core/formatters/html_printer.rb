@@ -30,10 +30,11 @@ module RSpec
           @output.puts "    <dd class=\"example passed\"><span class=\"passed_spec_name\">#{h(description)}</span><span class='duration'>#{formatted_run_time}s</span></dd>"
         end
 
-        def print_example_failed( pending_fixed, description, run_time, failure_id, exception, extra_content )
+        def print_example_failed( pending_fixed, blocked_fixed, description, run_time, failure_id, exception, extra_content )
           formatted_run_time = sprintf("%.5f", run_time)
 
           @output.puts "    <dd class=\"example #{pending_fixed ? 'pending_fixed' : 'failed'}\">"
+          # @output.puts "    <dd class=\"example #{blocked_fixed ? 'blocked_fixed' : 'failed'}\">"
           @output.puts "      <span class=\"failed_spec_name\">#{h(description)}</span>"
           @output.puts "      <span class=\"duration\">#{formatted_run_time}s</span>"
           @output.puts "      <div class=\"failure\" id=\"failure_#{failure_id}\">"
